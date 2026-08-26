@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Solicitar información — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:0.25rem;">Solicitar información al equipo directivo</h2>
+<p style="color:#718096;margin-bottom:1rem;">
+    <a href="{% url 'observaciones:lista_cursos' %}">← Volver a mis cursos</a>
+</p>
+
+<div style="max-width:600px;">
+    <form method="post">
+        {% csrf_token %}
+
+        <div style="margin-bottom:1rem;">
+            <label for="{{ form.alumno.id_for_label }}" style="display:block;margin-bottom:0.25rem;">Alumno</label>
+            {{ form.alumno }}
+            {% if form.alumno.errors %}<div style="color:#c53030;">{{ form.alumno.errors }}</div>{% endif %}
+            {% if not form.fields.alumno.queryset %}
+            <small style="color:#718096;">Solo podés solicitar información de alumnos de tus cursos asignados.</small>
+            {% endif %}
+        </div>
+
+        <div style="margin-bottom:1rem;">
+            <label for="{{ form.motivo.id_for_label }}" style="display:block;margin-bottom:0.25rem;">Motivo</label>
+            {{ form.motivo }}
+            {% if form.motivo.errors %}<div style="color:#c53030;">{{ form.motivo.errors }}</div>{% endif %}
+        </div>
+
+        <button type="submit" style="background:#2b6cb0;color:#fff;padding:0.6rem 1.25rem;border:none;border-radius:4px;font-size:1rem;cursor:pointer;">
+            Enviar solicitud
+        </button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Ficha de {{ alumno }} — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:0.25rem;">Ficha integral: {{ alumno }}</h2>
+<p style="color:#718096;margin-bottom:1rem;">
+    DNI: {{ alumno.dni|default:"—" }} | Estado: {{ alumno.get_estado_display }} |
+    <a href="{% url 'seguimiento:buscar_alumnos' %}">← Volver a la búsqueda</a>
+</p>
+
+<!-- Conteo por carácter (SOLO datos observados) -->
+<div style="display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
+    <div style="background:#f0fff4;border:1px solid #c6f6d5;border-radius:8px;padding:0.75rem 1.25rem;text-align:center;">
+        <div style="font-size:1.5rem;font-weight:700;color:#38a169;">{{ conteo_por_caracter.positivo|default:0 }}</div>
+        <div style="color:#718096;font-size:0.875rem;">Positivas</div>
+    </div>
+    <div style="background:#ebf8ff;border:1px solid #bee3f8;border-radius:8px;padding:0.75rem 1.25rem;text-align:center;">
+        <div style="font-size:1.5rem;font-weight:700;color:#3182ce;">{{ conteo_por_caracter.neutro|default:0 }}</div>
+        <div style="color:#718096;font-size:0.875rem;">Neutras</div>
+    </div>
+    <div style="background:#fffaf0;border:1px solid #feebc8;border-radius:8px;padding:0.75rem 1.25rem;text-align:center;">
+        <div style="font-size:1.5rem;font-weight:700;color:#dd6b20;">{{ conteo_por_caracter.atencion|default:0 }}</div>
+        <div style="color:#718096;font-size:0.875rem;">Atención</div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<form method="get" style="margin-bottom:1.5rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0.5rem;">
+    <select name="ciclo">
+        <option value="">Todos los ciclos</option>
+        {% for ciclo in ciclos %}
+        <option value="{{ ciclo.id }}" {% if ciclo_id == ciclo.id|stringformat:"s" %}selected{% endif %}>{{ ciclo }}</option>
+        {% endfor %}
+    </select>
+    <select name="materia">
+        <option value="">Todas las materias</option>
+        {% for materia in materias %}
+        <option value="{{ materia.id }}" {% if materia_id == materia.id|stringformat:"s" %}selected{% endif %}>{{ materia }}</option>
+        {% endfor %}
+    </select>
+    <select name="caracter">
+        <option value="">Todos los caracteres</option>
+        <option value="positivo" {% if caracter == "positivo" %}selected{% endif %}>Positivo</option>
+        <option value="neutro" {% if caracter == "neutro" %}selected{% endif %}>Neutro</option>
+        <option value="atencion" {% if caracter == "atencion" %}selected{% endif %}>Atención</option>
+    </select>
+    <button type="submit" style="padding:0.5rem;background:#2b6cb0;color:#fff;border:none;border-radius:4px;cursor:pointer;">Filtrar</button>
+</form>
+
+<!-- Historial de asignaciones a cursos -->
+<h3 style="margin-bottom:0.5rem;">Historial de asignaciones a cursos</h3>
+{% if asignaciones %}
+<table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;">
+    <thead>
+        <tr style="background:#edf2f7;text-align:left;">
+            <th style="padding:0.4rem;border:1px solid #e2e8f0;">Ciclo</th>
+            <th style="padding:0.4rem;border:1px solid #e2e8f0;">Curso</th>
+            <th style="padding:0.4rem;border:1px solid #e2e8f0;">Condición</th>
+            <th style="padding:0.4rem;border:1px solid #e2e8f0;">Desde</th>
+            <th style="padding:0.4rem;border:1px solid #e2e8f0;">Hasta</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for asig in asignaciones %}
+        <tr>
+            <td style="padding:0.4rem;border:1px solid #e2e8f0;">{{ asig.ciclo_lectivo.anio }}</td>
+            <td style="padding:0.4rem;border:1px solid #e2e8f0;">{{ asig.curso }}</td>
+            <td style="padding:0.4rem;border:1px solid #e2e8f0;">{{ asig.get_condicion_display }}</td>
+            <td style="padding:0.4rem;border:1px solid #e2e8f0;">{{ asig.fecha_inicio|date:"d/m/Y" }}</td>
+            <td style="padding:0.4rem;border:1px solid #e2e8f0;">{{ asig.fecha_fin|date:"d/m/Y"|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div style="padding:0.75rem;background:#ebf4ff;border-left:4px solid #3182ce;border-radius:4px;margin-bottom:1.5rem;">Sin asignaciones registradas.</div>
+{% endif %}
+
+<!-- Observaciones por materia -->
+<h3 style="margin-bottom:1rem;">Observaciones por materia</h3>
+
+{% for materia, observaciones in observaciones_por_materia.items %}
+<div style="margin-bottom:1.5rem;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;">
+    <div style="background:#edf2f7;padding:0.6rem 1rem;font-weight:600;">{{ materia }}</div>
+    <table style="width:100%;border-collapse:collapse;">
+        <thead>
+            <tr style="text-align:left;background:#f7fafc;">
+                <th style="padding:0.4rem;border:1px solid #e2e8f0;">Fecha</th>
+                <th style="padding:0.4rem;border:1px solid #e2e8f0;">Docente</th>
+                <th style="padding:0.4rem;border:1px solid #e2e8f0;">Categoría</th>
+                <th style="padding:0.4rem;border:1px solid #e2e8f0;">Carácter</th>
+                <th style="padding:0.4rem;border:1px solid #e2e8f0;">Comentario</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obs in observaciones %}
+            <tr>
+                <td style="padding:0.4rem;border:1px solid #e2e8f0;">{{ obs.fecha_hora|date:"d/m/Y H:i" }}</td>
+                <td style="padding:0.4rem;border:1px solid #e2e8f0;">{{ obs.docente }}</td>
+                <td style="padding:0.4rem;border:1px solid #e2e8f0;">{{ obs.catalogo.nombre }}</td>
+                <td style="padding:0.4rem;border:1px solid #e2e8f0;">
+                    {% if obs.catalogo.caracter == 'positivo' %}✅ Positivo
+                    {% elif obs.catalogo.caracter == 'atencion' %}⚠️ Atención
+                    {% else %}⚪ Neutro{% endif %}
+                </td>
+                <td style="padding:0.4rem;border:1px solid #e2e8f0;">{{ obs.comentario|default:"—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% empty %}
+<div style="padding:0.75rem;background:#ebf4ff;border-left:4px solid #3182ce;border-radius:4px;">
+    Sin observaciones vigentes para los filtros seleccionados.
+</div>
+{% endfor %}
+
+<!-- Intervenciones institucionales -->
+<h3 style="margin:1.5rem 0 0.5rem 0;">Intervenciones institucionales</h3>
+<p style="margin-bottom:1rem;">
+    <a href="{% url 'seguimiento:registrar_intervencion' alumno.id %}" style="background:#2b6cb0;color:#fff;padding:0.4rem 0.9rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Registrar intervención</a>
+</p>
+
+{% if intervenciones %}
+<table style="width:100%;border-collapse:collapse;">
+    <thead>
+        <tr style="background:#edf2f7;text-align:left;">
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Fecha</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Tipo</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Descripción</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Responsable</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for intervencion in intervenciones %}
+        <tr>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ intervencion.fecha|date:"d/m/Y H:i" }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ intervencion.get_tipo_display }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ intervencion.descripcion }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ intervencion.responsable }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div style="padding:0.75rem;background:#ebf4ff;border-left:4px solid #3182ce;border-radius:4px;">
+    Sin intervenciones registradas para este alumno.
+</div>
+{% endif %}
+
+{% endblock %}

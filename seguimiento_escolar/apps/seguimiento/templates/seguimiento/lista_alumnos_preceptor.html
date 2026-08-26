@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Alumnos del turno — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:0.5rem;">Alumnos del turno {{ turno|default:"—" }}</h2>
+
+{% if alumnos %}
+<table style="width:100%;border-collapse:collapse;margin-top:1rem;">
+    <thead>
+        <tr style="background:#edf2f7;text-align:left;">
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Alumno</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">DNI</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Estado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for alumno in alumnos %}
+        <tr>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno.dni|default:"—" }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno.get_estado_display }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div style="margin-top:1rem;padding:1rem;background:#ebf4ff;border-left:4px solid #3182ce;border-radius:4px;">
+    {% if turno %}No hay alumnos asignados a este turno.{% else %}El preceptor no tiene un turno asignado.{% endif %}
+</div>
+{% endif %}
+{% endblock %}

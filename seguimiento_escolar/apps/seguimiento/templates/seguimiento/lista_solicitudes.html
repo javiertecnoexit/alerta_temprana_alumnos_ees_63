@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Solicitudes de información — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:0.25rem;">Solicitudes de información</h2>
+<p style="color:#718096;margin-bottom:1rem;">
+    <a href="{% url 'seguimiento:buscar_alumnos' %}">← Volver a la búsqueda</a>
+</p>
+
+<form method="get" style="margin-bottom:1rem;">
+    <select name="estado" style="padding:0.4rem;border:1px solid #cbd5e0;border-radius:4px;">
+        <option value="">Todos los estados</option>
+        <option value="pendiente" {% if estado == "pendiente" %}selected{% endif %}>Pendiente</option>
+        <option value="respondida" {% if estado == "respondida" %}selected{% endif %}>Respondida</option>
+        <option value="rechazada" {% if estado == "rechazada" %}selected{% endif %}>Rechazada</option>
+    </select>
+    <button type="submit" style="padding:0.4rem 0.75rem;background:#2b6cb0;color:#fff;border:none;border-radius:4px;cursor:pointer;">Filtrar</button>
+</form>
+
+{% if solicitudes %}
+<table style="width:100%;border-collapse:collapse;">
+    <thead>
+        <tr style="background:#edf2f7;text-align:left;">
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Alumno</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Solicitante</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Motivo</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Estado</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Fecha</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for solicitud in solicitudes %}
+        <tr>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ solicitud.alumno }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ solicitud.solicitante }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ solicitud.motivo|truncatechars:60 }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ solicitud.get_estado_display }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ solicitud.fecha_solicitud|date:"d/m/Y" }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">
+                {% if solicitud.estado == "pendiente" %}
+                <a href="{% url 'seguimiento:responder_solicitud' solicitud.id %}" style="background:#2b6cb0;color:#fff;padding:0.3rem 0.75rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Responder</a>
+                {% else %}
+                <span style="color:#718096;font-size:0.875rem;">{{ solicitud.respondido_por|default:"—" }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div style="margin-top:1rem;padding:1rem;background:#ebf4ff;border-left:4px solid #3182ce;border-radius:4px;">
+    No hay solicitudes.
+</div>
+{% endif %}
+{% endblock %}

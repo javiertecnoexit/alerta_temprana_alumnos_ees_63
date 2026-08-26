@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar sesión — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<div style="max-width:400px;margin:0 auto;">
+    <h2 style="margin-bottom:1rem;">Iniciar sesión</h2>
+
+    {% if form.errors %}
+    <div style="background:#fff5f5;border-left:4px solid #e53e3e;padding:0.75rem 1rem;border-radius:4px;margin-bottom:1rem;">
+        <p style="color:#c53030;">Usuario o contraseña incorrectos.</p>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'usuarios:login' %}">
+        {% csrf_token %}
+
+        <div style="margin-bottom:1rem;">
+            <label for="{{ form.username.id_for_label }}" style="display:block;margin-bottom:0.25rem;">Usuario</label>
+            <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" class="form-control" style="width:100%;padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;" autofocus required>
+        </div>
+
+        <div style="margin-bottom:1rem;">
+            <label for="{{ form.password.id_for_label }}" style="display:block;margin-bottom:0.25rem;">Contraseña</label>
+            <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}" class="form-control" style="width:100%;padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;" required>
+        </div>
+
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <button type="submit" style="display:block;width:100%;padding:0.6rem;background:#2b6cb0;color:#fff;border:none;border-radius:4px;font-size:1rem;cursor:pointer;">
+            Iniciar sesión
+        </button>
+    </form>
+</div>
+{% endblock %}

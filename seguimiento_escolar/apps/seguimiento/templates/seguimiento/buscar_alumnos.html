@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Buscar alumnos — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:1rem;">Buscar alumnos</h2>
+
+<form method="get" style="margin-bottom:1rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.5rem;">
+    <input type="text" name="q" value="{{ termino }}" placeholder="Nombre, apellido o DNI" style="padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;">
+    <select name="curso" style="padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;">
+        <option value="">Todos los cursos</option>
+        {% for curso in cursos %}
+        <option value="{{ curso.id }}" {% if curso_id == curso.id|stringformat:"s" %}selected{% endif %}>{{ curso }}</option>
+        {% endfor %}
+    </select>
+    <select name="turno" style="padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;">
+        <option value="">Todos los turnos</option>
+        {% for turno in turnos %}
+        <option value="{{ turno.id }}" {% if turno_id == turno.id|stringformat:"s" %}selected{% endif %}>{{ turno }}</option>
+        {% endfor %}
+    </select>
+    <select name="ciclo" style="padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;">
+        <option value="">Todos los ciclos</option>
+        {% for ciclo in ciclos %}
+        <option value="{{ ciclo.id }}" {% if ciclo_id == ciclo.id|stringformat:"s" %}selected{% endif %}>{{ ciclo }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" style="padding:0.5rem;background:#2b6cb0;color:#fff;border:none;border-radius:4px;cursor:pointer;">Buscar</button>
+</form>
+
+{% if alumnos %}
+<table style="width:100%;border-collapse:collapse;">
+    <thead>
+        <tr style="background:#edf2f7;text-align:left;">
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Alumno</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">DNI</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Estado</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for alumno in alumnos %}
+        <tr>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno.dni|default:"—" }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno.get_estado_display }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">
+                <a href="{% url 'seguimiento:ficha_alumno' alumno.id %}" style="background:#2b6cb0;color:#fff;padding:0.3rem 0.75rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Ver ficha</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div style="margin-top:1rem;padding:1rem;background:#ebf4ff;border-left:4px solid #3182ce;border-radius:4px;">
+    No se encontraron alumnos con los criterios indicados.
+</div>
+{% endif %}
+{% endblock %}

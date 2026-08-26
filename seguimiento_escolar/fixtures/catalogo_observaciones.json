@@ -1,0 +1,380 @@
+[
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 1,
+    "fields": {
+      "nombre": "Participación adecuada",
+      "descripcion": "El alumno participa de manera activa y pertinente en la clase, aportando ideas o respondiendo cuando corresponde.",
+      "familia": "participacion",
+      "caracter": "positivo",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 2,
+    "fields": {
+      "nombre": "Participación disminuida",
+      "descripcion": "El alumno participa menos de lo habitual, responde poco o aporta con menor frecuencia que en otras oportunidades.",
+      "familia": "participacion",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 3,
+    "fields": {
+      "nombre": "No participa",
+      "descripcion": "El alumno no interviene en la clase a pesar de las oportunidades brindadas, no responde ni aporta cuando se lo convoca.",
+      "familia": "participacion",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 4,
+    "fields": {
+      "nombre": "Realiza las actividades",
+      "descripcion": "El alumno lleva a cabo las actividades propuestas en clase completándolas de acuerdo a lo solicitado.",
+      "familia": "trabajo_academico",
+      "caracter": "positivo",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 5,
+    "fields": {
+      "nombre": "No completa la actividad",
+      "descripcion": "El alumno inicia la actividad pero no la termina en el tiempo estipulado o la deja incompleta.",
+      "familia": "trabajo_academico",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 6,
+    "fields": {
+      "nombre": "No entrega trabajos",
+      "descripcion": "El alumno no presenta los trabajos o tareas solicitadas en los plazos acordados.",
+      "familia": "trabajo_academico",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 7,
+    "fields": {
+      "nombre": "Dificultades persistentes",
+      "descripcion": "El alumno presenta dificultades continuas para comprender o resolver las actividades, a pesar de los apoyos ofrecidos.",
+      "familia": "trabajo_academico",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 8,
+    "fields": {
+      "nombre": "No dispone del material necesario",
+      "descripcion": "El alumno no cuenta con el material solicitado para trabajar en clase (cuaderno, libro, elementos de trabajo).",
+      "familia": "trabajo_academico",
+      "caracter": "neutro",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 9,
+    "fields": {
+      "nombre": "Mantiene la atención",
+      "descripcion": "El alumno permanece atento durante el desarrollo de la clase, siguiendo las consignas y participando del ritmo de trabajo.",
+      "familia": "atencion",
+      "caracter": "positivo",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 10,
+    "fields": {
+      "nombre": "Distracciones frecuentes",
+      "descripcion": "El alumno se distrae con frecuencia durante la clase, desviando la mirada o la atención hacia otros estímulos.",
+      "familia": "atencion",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 11,
+    "fields": {
+      "nombre": "Se quedó dormido durante la clase",
+      "descripcion": "El alumno se queda dormido en horario de clase, evidenciado por la falta de respuesta e imposibilidad de seguir la actividad.",
+      "familia": "atencion",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 12,
+    "fields": {
+      "nombre": "Interacción adecuada",
+      "descripcion": "El alumno se relaciona de manera respetuosa y adecuada con sus pares y docentes durante la clase.",
+      "familia": "convivencia",
+      "caracter": "positivo",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 13,
+    "fields": {
+      "nombre": "Conducta disruptiva",
+      "descripcion": "El alumno interrumpe el desarrollo de la clase con comportamientos que dificultan el trabajo del grupo.",
+      "familia": "convivencia",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 14,
+    "fields": {
+      "nombre": "Conflicto con pares",
+      "descripcion": "El alumno tuvo una situación de conflicto con compañeros durante la clase, observable en discusiones o enfrentamientos.",
+      "familia": "convivencia",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 15,
+    "fields": {
+      "nombre": "Aislamiento observable",
+      "descripcion": "El alumno se mantiene apartado del grupo de compañeros durante la clase, evitando la interacción o el trabajo conjunto.",
+      "familia": "convivencia",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 16,
+    "fields": {
+      "nombre": "Dificultad para respetar pautas de convivencia",
+      "descripcion": "El alumno presenta dificultades para cumplir las pautas acordadas de convivencia en el aula (turnos de habla, normas, otros).",
+      "familia": "convivencia",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 17,
+    "fields": {
+      "nombre": "Apatía observable",
+      "descripcion": "El alumno se muestra sin energía o interés durante la actividad, observable en su falta de participación o respuesta.",
+      "familia": "estado_observable",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 18,
+    "fields": {
+      "nombre": "Tristeza observable",
+      "descripcion": "El alumno muestra gestos o actitudes de tristeza durante la clase, como llanto, rostro decaído o retraimiento.",
+      "familia": "estado_observable",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 19,
+    "fields": {
+      "nombre": "Desmotivación observable",
+      "descripcion": "El alumno manifiesta escaso interés o entusiasmo por las tareas propuestas, observable en su actitud frente al trabajo.",
+      "familia": "estado_observable",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 20,
+    "fields": {
+      "nombre": "Cambio significativo del comportamiento habitual",
+      "descripcion": "El alumno presenta un cambio notorio en su comportamiento habitual que llama la atención del docente en la clase.",
+      "familia": "estado_observable",
+      "caracter": "atencion",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 21,
+    "fields": {
+      "nombre": "Mejora significativa",
+      "descripcion": "El alumno muestra una mejora notable en su desempeño o participación en comparación con su comportamiento previo.",
+      "familia": "evolucion_positiva",
+      "caracter": "positivo",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 22,
+    "fields": {
+      "nombre": "Participación destacada",
+      "descripcion": "El alumno se destaca por su participación en clase, aportando con frecuencia y de manera valiosa.",
+      "familia": "evolucion_positiva",
+      "caracter": "positivo",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 23,
+    "fields": {
+      "nombre": "Desempeño sobresaliente",
+      "descripcion": "El alumno presenta un desempeño notablemente superior en las actividades, superando las expectativas habituales.",
+      "familia": "evolucion_positiva",
+      "caracter": "positivo",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 24,
+    "fields": {
+      "nombre": "Iniciativa",
+      "descripcion": "El alumno toma la iniciativa para proponer ideas, preguntar o resolver situaciones por sí mismo durante la clase.",
+      "familia": "evolucion_positiva",
+      "caracter": "positivo",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 25,
+    "fields": {
+      "nombre": "Compromiso destacado",
+      "descripcion": "El alumno demuestra un compromiso notable con las tareas y responsabilidades escolares durante la clase.",
+      "familia": "evolucion_positiva",
+      "caracter": "positivo",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 26,
+    "fields": {
+      "nombre": "Colaboración con pares",
+      "descripcion": "El alumno colabora activamente con sus compañeros, ayudando u orientando en la realización de las actividades.",
+      "familia": "evolucion_positiva",
+      "caracter": "positivo",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  },
+  {
+    "model": "observaciones.catalogoobservacion",
+    "pk": 27,
+    "fields": {
+      "nombre": "Otra situación",
+      "descripcion": "Situación observable que no encuadra en las categorías anteriores. Registrar con comentario para mayor detalle.",
+      "familia": "otra",
+      "caracter": "neutro",
+      "activo": true,
+      "version": 1,
+      "creado_por": null,
+      "creado_en": "2026-08-25T00:00:00-03:00"
+    }
+  }
+]

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Responder solicitud — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:0.25rem;">Responder solicitud de información</h2>
+<p style="color:#718096;margin-bottom:1rem;">
+    <strong>{{ solicitud.solicitante }}</strong> solicitó información sobre
+    <strong>{{ solicitud.alumno }}</strong>
+    <br>
+    <em>Motivo: {{ solicitud.motivo }}</em>
+    <br>
+    <a href="{% url 'seguimiento:lista_solicitudes' %}">← Volver a las solicitudes</a>
+</p>
+
+<div style="max-width:600px;">
+    <form method="post">
+        {% csrf_token %}
+
+        <div style="margin-bottom:1rem;">
+            <label for="{{ form.estado.id_for_label }}" style="display:block;margin-bottom:0.25rem;">Estado</label>
+            {{ form.estado }}
+            {% if form.estado.errors %}<div style="color:#c53030;">{{ form.estado.errors }}</div>{% endif %}
+        </div>
+
+        <div style="margin-bottom:1rem;">
+            <label for="{{ form.respuesta.id_for_label }}" style="display:block;margin-bottom:0.25rem;">Respuesta</label>
+            {{ form.respuesta }}
+            {% if form.respuesta.errors %}<div style="color:#c53030;">{{ form.respuesta.errors }}</div>{% endif %}
+        </div>
+
+        <button type="submit" style="background:#2b6cb0;color:#fff;padding:0.6rem 1.25rem;border:none;border-radius:4px;font-size:1rem;cursor:pointer;">
+            Guardar respuesta
+        </button>
+    </form>
+</div>
+{% endblock %}

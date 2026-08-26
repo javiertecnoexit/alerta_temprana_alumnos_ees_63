@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Mis cursos — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:1rem;">Mis cursos</h2>
+
+{% if messages %}
+<div style="margin-bottom:1rem;">
+    {% for message in messages %}
+    <div style="background:#f0fff4;border-left:4px solid #38a169;padding:0.75rem 1rem;border-radius:4px;margin-bottom:0.5rem;">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<p><a href="{% url 'observaciones:historial' %}">Ver mi historial de observaciones</a></p>
+
+{% if asignaciones %}
+<table style="width:100%;border-collapse:collapse;margin-top:1rem;">
+    <thead>
+        <tr style="background:#edf2f7;text-align:left;">
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Curso</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Materia</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Turno</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Ciclo</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for asignacion in asignaciones %}
+        <tr>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.curso }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.materia }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.curso.turno }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.curso.ciclo_lectivo }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">
+                <a href="{% url 'observaciones:lista_alumnos' asignacion.id %}">Ver alumnos</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div style="margin-top:1rem;padding:1rem;background:#ebf4ff;border-left:4px solid #3182ce;border-radius:4px;">
+    No tenés asignaciones vigentes.
+</div>
+{% endif %}
+{% endblock %}
