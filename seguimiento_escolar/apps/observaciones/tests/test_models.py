@@ -96,6 +96,12 @@ class ObservacionTests(TestCase):
         defaults.update(kwargs)
         return Observacion.objects.create(**defaults)
 
+    def test_observacion_sin_materia(self):
+        """Verifica que se puede crear una observación sin materia (preceptoría)."""
+        obs = self.crear_observacion(materia=None)
+        obs.refresh_from_db()
+        self.assertIsNone(obs.materia)
+
     def test_observacion_str(self):
         """Verifica que __str__ incluye alumno, categoría y fecha."""
         obs = self.crear_observacion()

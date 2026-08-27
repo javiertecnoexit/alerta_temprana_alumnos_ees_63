@@ -12,6 +12,7 @@
             <th style="padding:0.5rem;border:1px solid #e2e8f0;">Alumno</th>
             <th style="padding:0.5rem;border:1px solid #e2e8f0;">DNI</th>
             <th style="padding:0.5rem;border:1px solid #e2e8f0;">Estado</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Acciones</th>
         </tr>
     </thead>
     <tbody>
@@ -20,6 +21,11 @@
             <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno }}</td>
             <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno.dni|default:"—" }}</td>
             <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno.get_estado_display }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">
+                <a href="{% url 'seguimiento:ficha_alumno' alumno.id %}" style="background:#2b6cb0;color:#fff;padding:0.3rem 0.6rem;border-radius:4px;text-decoration:none;font-size:0.8rem;">Ficha</a>
+                <a href="{% url 'seguimiento:preceptor_registrar_observacion' alumno.id %}" style="background:#38a169;color:#fff;padding:0.3rem 0.6rem;border-radius:4px;text-decoration:none;font-size:0.8rem;">Observación</a>
+                <a href="{% url 'seguimiento:preceptor_registrar_intervencion' alumno.id %}" style="background:#d69e2e;color:#fff;padding:0.3rem 0.6rem;border-radius:4px;text-decoration:none;font-size:0.8rem;">Intervención</a>
+            </td>
         </tr>
         {% endfor %}
     </tbody>

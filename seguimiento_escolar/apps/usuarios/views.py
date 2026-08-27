@@ -31,7 +31,7 @@ class Home(LoginRequiredMixin, TemplateView):
         elif user.es_directivo:
             return redirect("usuarios:home_directivo")
         elif user.es_admin:
-            return redirect("admin:index")
+            return redirect("usuarios:home_admin")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -64,6 +64,12 @@ def home_preceptor_redirect(request):
     return redirect("seguimiento:preceptor_alumnos")
 
 
+def home_admin_redirect(request):
+    """Home del admin: redirige al panel de administración."""
+    return redirect("administracion:index")
+
+
 home_docente = home_docente_redirect
 home_preceptor = home_preceptor_redirect
 home_directivo = home_directivo_redirect
+home_admin = home_admin_redirect

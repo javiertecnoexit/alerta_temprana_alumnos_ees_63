@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'apps.asistencia.apps.AsistenciaConfig',
     'apps.auditoria.apps.AuditoriaConfig',
     'apps.seguimiento.apps.SeguimientoConfig',
+    'apps.administracion.apps.AdministracionConfig',
 ]
 
 MIDDLEWARE = [

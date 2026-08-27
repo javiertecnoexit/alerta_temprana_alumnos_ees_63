@@ -135,6 +135,17 @@ class ObservacionesViewsTests(TestCase):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_lista_alumnos_no_muestra_dni(self):
+        """El docente NO ve el DNI de los alumnos en la lista."""
+        response = self.client.get(
+            reverse("observaciones:lista_alumnos", args=[self.asignacion.id])
+        )
+        self.assertEqual(response.status_code, 200)
+        # El DNI de alumno1 es "30111222"
+        self.assertNotContains(response, "30111222")
+        # El DNI de alumno2 es "30111223"
+        self.assertNotContains(response, "30111223")
+
     def test_registrar_observacion_valida(self):
         """El docente registra una observación correctamente."""
         url = reverse(

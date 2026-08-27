@@ -79,6 +79,9 @@ class Observacion(models.Model):
         on_delete=models.PROTECT,
         related_name="observaciones",
         verbose_name="Materia",
+        null=True,
+        blank=True,
+        help_text="Opcional para observaciones de preceptoría",
     )
     curso = models.ForeignKey(
         "estructura_escolar.Curso",

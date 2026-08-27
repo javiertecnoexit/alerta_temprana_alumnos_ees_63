@@ -16,6 +16,17 @@ urlpatterns = [
         views.lista_alumnos_preceptor,
         name="preceptor_alumnos",
     ),
+    # Preceptor: observaciones e intervenciones
+    path(
+        "preceptor/alumnos/<int:alumno_id>/observacion/",
+        views.registrar_observacion_preceptor,
+        name="preceptor_registrar_observacion",
+    ),
+    path(
+        "preceptor/alumnos/<int:alumno_id>/intervencion/",
+        views.registrar_intervencion_preceptor,
+        name="preceptor_registrar_intervencion",
+    ),
     # Solicitudes de información
     path(
         "solicitar-info/",

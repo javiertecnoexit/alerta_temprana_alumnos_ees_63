@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -8,8 +9,10 @@ from django.views.decorators.http import require_http_methods
 from apps.alumnos.models import Alumno, AsignacionAlumnoCurso
 from apps.ciclos_lectivos.models import CicloLectivo
 from apps.estructura_escolar.models import Curso, Materia, Turno
+from apps.observaciones.forms import ObservacionForm
 from apps.observaciones.models import CatalogoObservacion, Observacion
 from apps.usuarios.decorators import (
+    directivo_o_preceptor,
     directivo_requerido,
     docente_requerido,
     preceptor_requerido,
@@ -17,6 +20,14 @@ from apps.usuarios.decorators import (
 
 from .forms import IntervencionForm, RespuestaSolicitudForm, SolicitudInfoForm
 from .models import Intervencion, PreceptorTurno, SolicitudInfo
+
+
+def turno_del_preceptor(user):
+    """Devuelve el turno del preceptor, o None si no tiene asignado."""
+    try:
+        return user.preceptor_turno.turno
+    except PreceptorTurno.DoesNotExist:
+        return None
 
 
 @directivo_requerido
@@ -65,10 +76,28 @@ def buscar_alumnos(request):
     )
 
 
-@directivo_requerido
+def _preceptor_puede_ver_alumno(user, alumno):
+    """Verifica si el preceptor tiene acceso al alumno (debe ser de su turno)."""
+    turno = turno_del_preceptor(user)
+    if turno is None:
+        return False
+    return AsignacionAlumnoCurso.objects.filter(
+        alumno=alumno,
+        curso__turno=turno,
+        activa=True,
+    ).exists()
+
+
+@directivo_o_preceptor
 def ficha_alumno(request, alumno_id):
     """Ficha integral del alumno: SOLO datos observados, sin diagnósticos."""
     alumno = get_object_or_404(Alumno, pk=alumno_id)
+
+    # Si es preceptor, verificar que el alumno es de su turno
+    if request.user.es_preceptor and not _preceptor_puede_ver_alumno(
+        request.user, alumno
+    ):
+        raise PermissionDenied
 
     # Historial de asignaciones a cursos
     asignaciones = (
@@ -256,4 +285,91 @@ def lista_alumnos_preceptor(request):
         request,
         "seguimiento/lista_alumnos_preceptor.html",
         {"turno": turno, "alumnos": alumnos},
+    )
+
+
+def _alumno_del_turno_preceptor(user, alumno_id):
+    """Devuelve el alumno si pertenece al turno del preceptor, sino 403."""
+    alumno = get_object_or_404(Alumno, pk=alumno_id)
+    if not _preceptor_puede_ver_alumno(user, alumno):
+        raise PermissionDenied
+    return alumno
+
+
+@preceptor_requerido
+@require_http_methods(["GET", "POST"])
+def registrar_observacion_preceptor(request, alumno_id):
+    """El preceptor registra una observación preceptorial (sin materia)."""
+    alumno = _alumno_del_turno_preceptor(request.user, alumno_id)
+    turno = turno_del_preceptor(request.user)
+
+    # Curso actual del alumno (primera asignación activa)
+    asignacion_actual = (
+        AsignacionAlumnoCurso.objects.filter(alumno=alumno, activa=True)
+        .select_related("curso", "ciclo_lectivo")
+        .first()
+    )
+    if asignacion_actual is None:
+        messages.error(request, "El alumno no tiene un curso asignado.")
+        return redirect("seguimiento:preceptor_alumnos")
+
+    catalogo_agrupado = CatalogoObservacion.objects.filter(
+        activo=True
+    ).order_by("familia", "nombre")
+
+    if request.method == "POST":
+        form = ObservacionForm(request.POST)
+        if form.is_valid():
+            observacion = form.save(commit=False)
+            observacion.alumno = alumno
+            observacion.docente = request.user
+            observacion.materia = None  # observación preceptorial
+            observacion.curso = asignacion_actual.curso
+            observacion.ciclo_lectivo = asignacion_actual.ciclo_lectivo
+            observacion.turno = turno.nombre
+            observacion.fecha_hora = timezone.now()
+            observacion.dentro_horario = False
+            observacion.save()
+            messages.success(
+                request,
+                f"Observación registrada para {alumno}.",
+            )
+            return redirect("seguimiento:preceptor_alumnos")
+    else:
+        form = ObservacionForm()
+
+    return render(
+        request,
+        "seguimiento/registrar_observacion_preceptor.html",
+        {
+            "alumno": alumno,
+            "turno": turno,
+            "form": form,
+            "catalogo_agrupado": catalogo_agrupado,
+        },
+    )
+
+
+@preceptor_requerido
+@require_http_methods(["GET", "POST"])
+def registrar_intervencion_preceptor(request, alumno_id):
+    """El preceptor registra una intervención de seguimiento."""
+    alumno = _alumno_del_turno_preceptor(request.user, alumno_id)
+
+    if request.method == "POST":
+        form = IntervencionForm(request.POST)
+        if form.is_valid():
+            intervencion = form.save(commit=False)
+            intervencion.alumno = alumno
+            intervencion.responsable = request.user
+            intervencion.save()
+            messages.success(request, "Intervención registrada.")
+            return redirect("seguimiento:ficha_alumno", alumno_id=alumno.id)
+    else:
+        form = IntervencionForm()
+
+    return render(
+        request,
+        "seguimiento/registrar_intervencion.html",
+        {"form": form, "alumno": alumno},
     )

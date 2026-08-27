@@ -9,4 +9,5 @@ urlpatterns = [
     path('', include('apps.usuarios.urls', namespace='usuarios')),
     path('observaciones/', include('apps.observaciones.urls', namespace='observaciones')),
     path('seguimiento/', include('apps.seguimiento.urls', namespace='seguimiento')),
+    path('administracion/', include('apps.administracion.urls', namespace='administracion')),
 ]

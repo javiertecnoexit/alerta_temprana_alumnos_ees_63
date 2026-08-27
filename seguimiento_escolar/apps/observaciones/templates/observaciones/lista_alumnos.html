@@ -13,7 +13,6 @@
     <thead>
         <tr style="background:#edf2f7;text-align:left;">
             <th style="padding:0.5rem;border:1px solid #e2e8f0;">Alumno</th>
-            <th style="padding:0.5rem;border:1px solid #e2e8f0;">DNI</th>
             <th style="padding:0.5rem;border:1px solid #e2e8f0;">Acción</th>
         </tr>
     </thead>
@@ -21,7 +20,6 @@
         {% for alumno in alumnos %}
         <tr>
             <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno }}</td>
-            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno.dni|default:"—" }}</td>
             <td style="padding:0.5rem;border:1px solid #e2e8f0;">
                 <a href="{% url 'observaciones:registrar' asignacion.id alumno.id %}" style="background:#2b6cb0;color:#fff;padding:0.3rem 0.75rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Registrar observación</a>
             </td>

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar observación preceptorial — {{ alumno }} — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:0.25rem;">Registrar observación preceptorial</h2>
+<p style="color:#718096;margin-bottom:0.25rem;"><strong>{{ alumno }}</strong> — Turno {{ turno|default:"—" }}</p>
+<p style="color:#718096;margin-bottom:1rem;">
+    <a href="{% url 'seguimiento:preceptor_alumnos' %}">← Volver a los alumnos de mi turno</a>
+</p>
+
+{% if messages %}
+<div style="margin-bottom:1rem;">
+    {% for message in messages %}
+    <div style="background:#f0fff4;border-left:4px solid #38a169;padding:0.75rem 1rem;border-radius:4px;margin-bottom:0.5rem;">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <div style="margin-bottom:1rem;">
+        <h3 style="margin-bottom:0.5rem;">Categoría de observación</h3>
+        {% if form.catalogo.errors %}
+        <div style="color:#c53030;margin-bottom:0.5rem;">{{ form.catalogo.errors }}</div>
+        {% endif %}
+
+        {% regroup catalogo_agrupado by get_familia_display as familias %}
+
+        {% for familia in familias %}
+        <h4 style="margin:0.75rem 0 0.25rem 0;color:#2b6cb0;">{{ familia.grouper }}</h4>
+        <div style="display:grid;grid-template-columns:1fr;gap:0.35rem;">
+            {% for categoria in familia.list %}
+            <label style="display:flex;align-items:center;gap:0.5rem;padding:0.4rem 0.6rem;border:1px solid #e2e8f0;border-radius:4px;cursor:pointer;">
+                <input type="radio" name="catalogo" value="{{ categoria.id }}" {% if form.catalogo.value == categoria.id %}checked{% endif %}>
+                <span>
+                    <strong>{{ categoria.nombre }}</strong>
+                    {% if categoria.caracter == 'positivo' %} ✅
+                    {% elif categoria.caracter == 'atencion' %} ⚠️
+                    {% endif %}
+                    {% if categoria.descripcion %}
+                    <small style="display:block;color:#718096;">{{ categoria.descripcion }}</small>
+                    {% endif %}
+                </span>
+            </label>
+            {% endfor %}
+        </div>
+        {% endfor %}
+
+        {% if not catalogo_agrupado %}
+        <div style="padding:1rem;background:#ebf4ff;border-left:4px solid #3182ce;border-radius:4px;">
+            No hay categorías activas en el catálogo.
+        </div>
+        {% endif %}
+    </div>
+
+    <div style="margin-bottom:1rem;">
+        <label for="{{ form.comentario.id_for_label }}" style="display:block;margin-bottom:0.25rem;">Comentario opcional</label>
+        {{ form.comentario }}
+        {% if form.comentario.errors %}
+        <div style="color:#c53030;">{{ form.comentario.errors }}</div>
+        {% endif %}
+    </div>
+
+    <button type="submit" style="background:#38a169;color:#fff;padding:0.6rem 1.25rem;border:none;border-radius:4px;font-size:1rem;cursor:pointer;">
+        Registrar observación
+    </button>
+</form>
+{% endblock %}
