@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Alumnos — Administración — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:0.25rem;">Gestión de Alumnos</h2>
+<p style="color:#718096;margin-bottom:1rem;">
+    <a href="{% url 'administracion:index' %}">← Volver a administración</a>
+</p>
+
+<p style="margin-bottom:1rem;">
+    <a href="{% url 'administracion:alumno_crear' %}" style="background:#2b6cb0;color:#fff;padding:0.4rem 0.9rem;border-radius:4px;text-decoration:none;">+ Nuevo alumno</a>
+</p>
+
+{% if alumnos %}
+<table style="width:100%;border-collapse:collapse;margin-top:1rem;">
+    <thead>
+        <tr style="background:#edf2f7;text-align:left;">
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Apellido</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Nombre</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">DNI</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Estado</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for alumno in alumnos %}
+        <tr>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno.apellido }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno.nombre }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno.dni|default:"—" }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ alumno.get_estado_display }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">
+                <a href="{% url 'administracion:alumno_editar' alumno.id %}" style="background:#edf2f7;color:#2d3748;padding:0.3rem 0.75rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Editar</a>
+                {% if alumno.estado != 'inactivo' %}
+                <a href="{% url 'administracion:alumno_baja' alumno.id %}" style="background:#fed7d7;color:#9b2c2c;padding:0.3rem 0.75rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Dar de baja</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div style="margin-top:1rem;padding:1rem;background:#ebf4ff;border-left:4px solid #3182ce;border-radius:4px;">
+    No hay alumnos cargados.
+</div>
+{% endif %}
+{% endblock %}

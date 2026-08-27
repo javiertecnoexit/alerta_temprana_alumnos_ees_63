@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Asignaciones docentes — Administración — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:0.25rem;">Gestión de Asignaciones Docentes</h2>
+<p style="color:#718096;margin-bottom:1rem;">
+    <a href="{% url 'administracion:index' %}">← Volver a administración</a>
+</p>
+
+<p style="margin-bottom:1rem;">
+    <a href="{% url 'administracion:asignacion_crear' %}" style="background:#2b6cb0;color:#fff;padding:0.4rem 0.9rem;border-radius:4px;text-decoration:none;">+ Nueva asignación</a>
+</p>
+
+{% if asignaciones %}
+<table style="width:100%;border-collapse:collapse;margin-top:1rem;">
+    <thead>
+        <tr style="background:#edf2f7;text-align:left;">
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Docente</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Materia</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Curso</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Tipo</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Inicio</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Fin</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Estado</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for asignacion in asignaciones %}
+        <tr>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.docente }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.materia }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.curso }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.get_tipo_display }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.fecha_inicio|date:"d/m/Y" }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.fecha_fin|date:"d/m/Y"|default:"—" }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">
+                {% if asignacion.activa %}Activa{% else %}Inactiva{% endif %}
+            </td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">
+                <a href="{% url 'administracion:asignacion_editar' asignacion.id %}" style="background:#edf2f7;color:#2d3748;padding:0.3rem 0.75rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Editar</a>
+                {% if asignacion.activa %}
+                <a href="{% url 'administracion:asignacion_baja' asignacion.id %}" style="background:#fed7d7;color:#9b2c2c;padding:0.3rem 0.75rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Dar de baja</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div style="margin-top:1rem;padding:1rem;background:#ebf4ff;border-left:4px solid #3182ce;border-radius:4px;">
+    No hay asignaciones docentes cargadas.
+</div>
+{% endif %}
+{% endblock %}

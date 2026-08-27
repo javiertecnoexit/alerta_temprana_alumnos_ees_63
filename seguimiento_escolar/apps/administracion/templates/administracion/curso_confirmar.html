@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }} — Administración — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:1rem;">{{ titulo }}</h2>
+
+{% if volver_url %}
+<p style="color:#718096;margin-bottom:1rem;">
+    <a href="{{ volver_url }}">← Volver al listado</a>
+</p>
+{% endif %}
+
+{% if es_baja %}
+<div style="margin-bottom:1rem;padding:1rem;background:#fff5f5;border-left:4px solid #e53e3e;border-radius:4px;">
+    El curso <strong>{{ datos.curso }}</strong> será dado de baja.
+</div>
+{% else %}
+<table style="width:100%;border-collapse:collapse;margin:1rem 0;max-width:480px;">
+    <tbody>
+        {% for clave, valor in datos.items %}
+        {% if clave != 'id' %}
+        <tr>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;text-align:left;background:#edf2f7;width:40%;">
+                {{ clave }}
+            </th>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ valor|default:"—" }}</td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" style="background:#2b6cb0;color:#fff;padding:0.5rem 1.2rem;border:none;border-radius:4px;cursor:pointer;">Confirmar</button>
+    <a href="{{ cancelar_url }}" style="margin-left:1rem;color:#2d3748;">Cancelar</a>
+</form>
+{% endblock %}
