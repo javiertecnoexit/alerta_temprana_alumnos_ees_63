@@ -48,5 +48,11 @@
         <p style="color:#718096;font-size:0.875rem;">Asignaciones docentes y horarios.</p>
         <a href="{% url 'administracion:asignaciones_lista' %}" style="display:inline-block;margin-top:0.5rem;background:#2b6cb0;color:#fff;padding:0.4rem 0.9rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Gestionar</a>
     </div>
+
+    <div style="border:1px solid #e2e8f0;border-radius:8px;padding:1rem;">
+        <h3 style="margin-bottom:0.5rem;">Asignaciones de alumnos</h3>
+        <p style="color:#718096;font-size:0.875rem;">Asignación de alumnos a cursos.</p>
+        <a href="{% url 'administracion:asignaciones_alumnos_lista' %}" style="display:inline-block;margin-top:0.5rem;background:#2b6cb0;color:#fff;padding:0.4rem 0.9rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Gestionar</a>
+    </div>
 </div>
 {% endblock %}

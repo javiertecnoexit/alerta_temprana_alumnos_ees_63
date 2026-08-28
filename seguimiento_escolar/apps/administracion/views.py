@@ -3,8 +3,9 @@ from datetime import date, datetime, time
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 
-from apps.alumnos.models import Alumno
+from apps.alumnos.models import Alumno, AsignacionAlumnoCurso
 from apps.auditoria.models import AuditLog
 from apps.ciclos_lectivos.models import CicloLectivo
 from apps.estructura_escolar.models import (
@@ -19,6 +20,7 @@ from apps.usuarios.models import Usuario
 
 from .forms import (
     AlumnoForm,
+    AsignacionAlumnoCursoForm,
     AsignacionDocenteForm,
     CicloLectivoForm,
     CursoForm,
@@ -97,6 +99,24 @@ def alumno_confirmar(request):
                  "dni": alumno.dni},
                 request,
             )
+            # Asignación opcional de curso al crear el alumno
+            curso = form.cleaned_data.get("curso")
+            ciclo_lectivo = form.cleaned_data.get("ciclo_lectivo")
+            if curso and ciclo_lectivo:
+                asignacion = AsignacionAlumnoCurso.objects.create(
+                    alumno=alumno,
+                    curso=curso,
+                    ciclo_lectivo=ciclo_lectivo,
+                    fecha_inicio=timezone.now().date(),
+                    condicion=AsignacionAlumnoCurso.Condicion.REGULAR,
+                    activa=True,
+                )
+                registrar_auditoria(
+                    request.user, AuditLog.Accion.CREAR,
+                    "AsignacionAlumnoCurso", asignacion.id,
+                    {"asignacion": str(asignacion)},
+                    request,
+                )
             del request.session["alumno_crear"]
             messages.success(request, f"Alumno {alumno} creado correctamente.")
             return redirect("administracion:alumnos_lista")
@@ -992,6 +1012,162 @@ def asignacion_baja(request, asignacion_id):
         "es_baja": True,
         "cancelar_url": reverse("administracion:asignaciones_lista"),
         "volver_url": reverse("administracion:asignaciones_lista"),
+    })
+
+
+# ---------------------------------------------------------------------------
+# Asignaciones alumno-curso
+# ---------------------------------------------------------------------------
+@directivo_o_admin
+def asignaciones_alumnos_lista(request):
+    """Listado de asignaciones alumno-curso."""
+    asignaciones = AsignacionAlumnoCurso.objects.select_related(
+        "alumno", "curso", "curso__turno", "ciclo_lectivo"
+    ).all()
+    return render(
+        request,
+        "administracion/asignaciones_alumnos_lista.html",
+        {"asignaciones": asignaciones},
+    )
+
+
+@directivo_o_admin
+def asignacion_alumno_crear(request):
+    """Paso 1: formulario de alta de asignación alumno-curso (guarda en sesión)."""
+    if request.method == "POST":
+        form = AsignacionAlumnoCursoForm(request.POST)
+        if form.is_valid():
+            request.session["asignacion_alumno_crear"] = _serializar_datos(
+                form.cleaned_data
+            )
+            return redirect("administracion:asignacion_alumno_confirmar")
+    else:
+        form = AsignacionAlumnoCursoForm()
+    return render(request, "administracion/asignacion_alumno_form.html", {
+        "form": form,
+        "titulo": "Nueva asignación alumno-curso",
+        "accion_url": reverse("administracion:asignacion_alumno_crear"),
+    })
+
+
+@directivo_o_admin
+def asignacion_alumno_confirmar(request):
+    """Paso 2: muestra resumen y confirma la creación de la asignación."""
+    datos = request.session.get("asignacion_alumno_crear")
+    if not datos:
+        return redirect("administracion:asignacion_alumno_crear")
+
+    if request.method == "POST":
+        form = AsignacionAlumnoCursoForm(datos)
+        if form.is_valid():
+            asignacion = form.save()
+            registrar_auditoria(
+                request.user, AuditLog.Accion.CREAR, "AsignacionAlumnoCurso",
+                asignacion.id, {"asignacion": str(asignacion)},
+                request,
+            )
+            del request.session["asignacion_alumno_crear"]
+            messages.success(
+                request, f"Asignación {asignacion} creada correctamente."
+            )
+            return redirect("administracion:asignaciones_alumnos_lista")
+        del request.session["asignacion_alumno_crear"]
+        return redirect("administracion:asignacion_alumno_crear")
+
+    return render(request, "administracion/asignacion_alumno_confirmar.html", {
+        "datos": datos,
+        "titulo": "Confirmar alta de asignación alumno-curso",
+        "cancelar_url": reverse("administracion:asignacion_alumno_crear"),
+        "volver_url": reverse("administracion:asignaciones_alumnos_lista"),
+    })
+
+
+@directivo_o_admin
+def asignacion_alumno_editar(request, asignacion_id):
+    """Paso 1: formulario de edición de asignación (guarda en sesión)."""
+    asignacion = get_object_or_404(AsignacionAlumnoCurso, pk=asignacion_id)
+    if request.method == "POST":
+        form = AsignacionAlumnoCursoForm(request.POST, instance=asignacion)
+        if form.is_valid():
+            request.session["asignacion_alumno_editar"] = {
+                "id": asignacion.id,
+                "datos": _serializar_datos(form.cleaned_data),
+            }
+            return redirect("administracion:asignacion_alumno_confirmar_editar")
+    else:
+        form = AsignacionAlumnoCursoForm(instance=asignacion)
+    return render(request, "administracion/asignacion_alumno_form.html", {
+        "form": form,
+        "titulo": f"Editar asignación: {asignacion}",
+        "accion_url": reverse(
+            "administracion:asignacion_alumno_editar", args=[asignacion.id]
+        ),
+        "volver_url": reverse("administracion:asignaciones_alumnos_lista"),
+    })
+
+
+@directivo_o_admin
+def asignacion_alumno_confirmar_editar(request):
+    """Paso 2: confirma la edición de la asignación."""
+    sesion = request.session.get("asignacion_alumno_editar")
+    if not sesion:
+        return redirect("administracion:asignaciones_alumnos_lista")
+
+    asignacion = get_object_or_404(AsignacionAlumnoCurso, pk=sesion["id"])
+    if request.method == "POST":
+        form = AsignacionAlumnoCursoForm(sesion["datos"], instance=asignacion)
+        if form.is_valid():
+            form.save()
+            registrar_auditoria(
+                request.user, AuditLog.Accion.MODIFICAR,
+                "AsignacionAlumnoCurso", asignacion.id,
+                {"campos": list(sesion["datos"].keys())},
+                request,
+            )
+            del request.session["asignacion_alumno_editar"]
+            messages.success(
+                request,
+                f"Asignación {asignacion} modificada correctamente.",
+            )
+            return redirect("administracion:asignaciones_alumnos_lista")
+        del request.session["asignacion_alumno_editar"]
+        return redirect(
+            "administracion:asignacion_alumno_editar",
+            asignacion_id=asignacion.id,
+        )
+
+    datos = {"id": asignacion.id, **sesion["datos"]}
+    return render(request, "administracion/asignacion_alumno_confirmar.html", {
+        "datos": datos,
+        "titulo": "Confirmar modificación de asignación alumno-curso",
+        "cancelar_url": reverse(
+            "administracion:asignacion_alumno_editar", args=[asignacion.id]
+        ),
+        "volver_url": reverse("administracion:asignaciones_alumnos_lista"),
+    })
+
+
+@directivo_o_admin
+def asignacion_alumno_baja(request, asignacion_id):
+    """Da de baja (activa=False) a una asignación con confirmación."""
+    asignacion = get_object_or_404(AsignacionAlumnoCurso, pk=asignacion_id)
+    if request.method == "POST":
+        asignacion.activa = False
+        asignacion.save()
+        registrar_auditoria(
+            request.user, AuditLog.Accion.MODIFICAR,
+            "AsignacionAlumnoCurso", asignacion.id,
+            {"activa": False},
+            request,
+        )
+        messages.success(request, f"Asignación {asignacion} dada de baja.")
+        return redirect("administracion:asignaciones_alumnos_lista")
+    return render(request, "administracion/asignacion_alumno_confirmar.html", {
+        "datos": {"id": asignacion.id, "asignacion": str(asignacion)},
+        "titulo": "Confirmar baja de asignación alumno-curso",
+        "es_baja": True,
+        "cancelar_url": reverse("administracion:asignaciones_alumnos_lista"),
+        "volver_url": reverse("administracion:asignaciones_alumnos_lista"),
     })
 
 

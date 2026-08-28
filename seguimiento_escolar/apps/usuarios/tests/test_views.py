@@ -130,3 +130,121 @@ class DecoradoresTests(TestCase):
         # login_required redirige a LOGIN_URL
         self.assertEqual(response.status_code, 302)
         self.assertIn(reverse("usuarios:login"), response.url)
+
+class MenuNavegacionTests(TestCase):
+    """El menú del header (base.html) muestra enlaces según el rol."""
+
+    def setUp(self):
+        User = get_user_model()
+        self.docente = User.objects.create_user(
+            username="docente1",
+            password="pass12345",
+            rol=User.Rol.DOCENTE,
+        )
+        self.preceptor = User.objects.create_user(
+            username="preceptor1",
+            password="pass12345",
+            rol=User.Rol.PRECEPTOR,
+        )
+        self.directivo = User.objects.create_user(
+            username="directivo1",
+            password="pass12345",
+            rol=User.Rol.DIRECTIVO,
+        )
+        self.admin = User.objects.create_user(
+            username="admin1",
+            password="pass12345",
+            rol=User.Rol.ADMIN,
+        )
+
+    def test_menu_docente(self):
+        """El docente ve sus enlaces y no los de otros roles."""
+        self.client.force_login(self.docente)
+        response = self.client.get(reverse("observaciones:lista_cursos"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'href="{}"'.format(reverse("observaciones:historial")),
+        )
+        self.assertContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:solicitar_info")),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:buscar_alumnos")),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:preceptor_alumnos")),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(reverse("administracion:index")),
+        )
+
+    def test_menu_preceptor(self):
+        """El preceptor ve sus enlaces y no los de otros roles."""
+        self.client.force_login(self.preceptor)
+        response = self.client.get(reverse("seguimiento:preceptor_alumnos"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:reporte_participacion")),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:buscar_alumnos")),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(reverse("observaciones:lista_cursos")),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(reverse("administracion:index")),
+        )
+
+    def test_menu_directivo(self):
+        """El directivo ve sus enlaces y no los de otros roles."""
+        self.client.force_login(self.directivo)
+        response = self.client.get(reverse("seguimiento:buscar_alumnos"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:lista_solicitudes")),
+        )
+        self.assertContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:reporte_participacion")),
+        )
+        self.assertContains(
+            response,
+            'href="{}"'.format(reverse("administracion:index")),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(reverse("observaciones:lista_cursos")),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:preceptor_alumnos")),
+        )
+
+    def test_menu_admin(self):
+        """El admin solo ve sus enlaces de administración."""
+        self.client.force_login(self.admin)
+        response = self.client.get(reverse("administracion:index"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'href="{}"'.format(reverse("administracion:index")),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:buscar_alumnos")),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(reverse("observaciones:lista_cursos")),
+        )

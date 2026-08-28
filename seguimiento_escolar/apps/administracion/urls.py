@@ -69,4 +69,36 @@ urlpatterns = [
     path("horarios/<int:horario_id>/editar/", views.horario_editar, name="horario_editar"),
     path("horarios/confirmar-editar/", views.horario_confirmar_editar, name="horario_confirmar_editar"),
     path("horarios/<int:horario_id>/eliminar/", views.horario_eliminar, name="horario_eliminar"),
+
+    # Asignaciones alumno-curso
+    path(
+        "asignaciones-alumnos/",
+        views.asignaciones_alumnos_lista,
+        name="asignaciones_alumnos_lista",
+    ),
+    path(
+        "asignaciones-alumnos/nueva/",
+        views.asignacion_alumno_crear,
+        name="asignacion_alumno_crear",
+    ),
+    path(
+        "asignaciones-alumnos/confirmar/",
+        views.asignacion_alumno_confirmar,
+        name="asignacion_alumno_confirmar",
+    ),
+    path(
+        "asignaciones-alumnos/<int:asignacion_id>/editar/",
+        views.asignacion_alumno_editar,
+        name="asignacion_alumno_editar",
+    ),
+    path(
+        "asignaciones-alumnos/confirmar-editar/",
+        views.asignacion_alumno_confirmar_editar,
+        name="asignacion_alumno_confirmar_editar",
+    ),
+    path(
+        "asignaciones-alumnos/<int:asignacion_id>/baja/",
+        views.asignacion_alumno_baja,
+        name="asignacion_alumno_baja",
+    ),
 ]

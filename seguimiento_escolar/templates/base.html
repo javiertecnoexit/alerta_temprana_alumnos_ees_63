@@ -90,6 +90,21 @@
         <h1>Sistema de Seguimiento Escolar — ES63</h1>
         {% if user.is_authenticated %}
         <nav>
+            {% if user.es_docente %}
+            <a href="{% url 'observaciones:lista_cursos' %}">Mis cursos</a>
+            <a href="{% url 'observaciones:historial' %}">Mi historial</a>
+            <a href="{% url 'seguimiento:solicitar_info' %}">Solicitar información</a>
+            {% elif user.es_preceptor %}
+            <a href="{% url 'seguimiento:preceptor_alumnos' %}">Alumnos de mi turno</a>
+            <a href="{% url 'seguimiento:reporte_participacion' %}">Reportes</a>
+            {% elif user.es_directivo %}
+            <a href="{% url 'seguimiento:buscar_alumnos' %}">Buscar alumnos</a>
+            <a href="{% url 'seguimiento:lista_solicitudes' %}">Solicitudes de información</a>
+            <a href="{% url 'seguimiento:reporte_participacion' %}">Reportes</a>
+            <a href="{% url 'administracion:index' %}">Administración</a>
+            {% elif user.es_admin %}
+            <a href="{% url 'administracion:index' %}">Administración</a>
+            {% endif %}
             <span>{{ user.get_full_name|default:user.username }}</span>
             <form action="{% url 'usuarios:logout' %}" method="post" style="display:inline;">
                 {% csrf_token %}

@@ -182,3 +182,77 @@ class PreceptorAmpliadoTests(TestCase):
                 reverse("seguimiento:ficha_alumno", args=[alumno.id])
             )
             self.assertEqual(response.status_code, 200)
+
+    def test_preceptor_ficha_enlace_volver_a_sus_alumnos(self):
+        """La ficha del preceptor vuelve a su lista y no enlaza vistas del directivo."""
+        self.client.force_login(self.preceptor)
+        response = self.client.get(
+            reverse("seguimiento:ficha_alumno", args=[self.alumno_manana.id])
+        )
+        self.assertEqual(response.status_code, 200)
+        # Enlace de volver apunta a la vista del preceptor
+        self.assertContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:preceptor_alumnos")),
+        )
+        self.assertContains(response, "← Volver")
+        # No debe mostrar el enlace de volver del directivo
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:buscar_alumnos")),
+        )
+        # El botón de intervención apunta a la vista del preceptor (sin 403)
+        self.assertContains(
+            response,
+            'href="{}"'.format(
+                reverse(
+                    "seguimiento:preceptor_registrar_intervencion",
+                    args=[self.alumno_manana.id],
+                )
+            ),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(
+                reverse(
+                    "seguimiento:registrar_intervencion",
+                    args=[self.alumno_manana.id],
+                )
+            ),
+        )
+
+    def test_directivo_ficha_enlace_volver_a_busqueda(self):
+        """La ficha del directivo sigue volviendo a la búsqueda de alumnos."""
+        self.client.force_login(self.directivo)
+        response = self.client.get(
+            reverse("seguimiento:ficha_alumno", args=[self.alumno_manana.id])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "← Volver a la búsqueda")
+        self.assertContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:buscar_alumnos")),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(reverse("seguimiento:preceptor_alumnos")),
+        )
+        # El botón de intervención sigue siendo el institucional (solo directivo)
+        self.assertContains(
+            response,
+            'href="{}"'.format(
+                reverse(
+                    "seguimiento:registrar_intervencion",
+                    args=[self.alumno_manana.id],
+                )
+            ),
+        )
+        self.assertNotContains(
+            response,
+            'href="{}"'.format(
+                reverse(
+                    "seguimiento:preceptor_registrar_intervencion",
+                    args=[self.alumno_manana.id],
+                )
+            ),
+        )

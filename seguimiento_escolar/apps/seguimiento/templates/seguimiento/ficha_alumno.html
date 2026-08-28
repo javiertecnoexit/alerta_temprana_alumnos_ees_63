@@ -6,7 +6,11 @@
 <h2 style="margin-bottom:0.25rem;">Ficha integral: {{ alumno }}</h2>
 <p style="color:#718096;margin-bottom:1rem;">
     DNI: {{ alumno.dni|default:"—" }} | Estado: {{ alumno.get_estado_display }} |
+    {% if user.es_preceptor %}
+    <a href="{% url 'seguimiento:preceptor_alumnos' %}">← Volver</a>
+    {% else %}
     <a href="{% url 'seguimiento:buscar_alumnos' %}">← Volver a la búsqueda</a>
+    {% endif %}
 </p>
 
 <!-- Conteo por carácter (SOLO datos observados) -->
@@ -131,7 +135,11 @@
 <!-- Intervenciones institucionales -->
 <h3 style="margin:1.5rem 0 0.5rem 0;">Intervenciones institucionales</h3>
 <p style="margin-bottom:1rem;">
+    {% if user.es_preceptor %}
+    <a href="{% url 'seguimiento:preceptor_registrar_intervencion' alumno.id %}" style="background:#2b6cb0;color:#fff;padding:0.4rem 0.9rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Registrar intervención</a>
+    {% else %}
     <a href="{% url 'seguimiento:registrar_intervencion' alumno.id %}" style="background:#2b6cb0;color:#fff;padding:0.4rem 0.9rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Registrar intervención</a>
+    {% endif %}
 </p>
 
 {% if intervenciones %}

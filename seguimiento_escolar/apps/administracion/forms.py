@@ -1,6 +1,6 @@
 from django import forms
 
-from apps.alumnos.models import Alumno
+from apps.alumnos.models import Alumno, AsignacionAlumnoCurso
 from apps.ciclos_lectivos.models import CicloLectivo
 from apps.estructura_escolar.models import (
     AsignacionDocente,
@@ -14,6 +14,19 @@ from apps.usuarios.models import Usuario
 
 class AlumnoForm(forms.ModelForm):
     """Formulario de alta/edición de un alumno."""
+
+    curso = forms.ModelChoiceField(
+        queryset=Curso.objects.filter(activo=True),
+        required=False,
+        label="Curso (asignación)",
+        help_text="Opcional: al crear el alumno lo asigna a un curso.",
+    )
+    ciclo_lectivo = forms.ModelChoiceField(
+        queryset=CicloLectivo.objects.filter(activo=True),
+        required=False,
+        label="Ciclo lectivo (asignación)",
+        help_text="Opcional: ciclo lectivo de la asignación del alumno.",
+    )
 
     class Meta:
         model = Alumno
@@ -29,6 +42,21 @@ class AlumnoForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs.setdefault("class", "form-control")
+        # La asignación de curso solo aplica al alta, no a la edición
+        if self.instance and self.instance.pk:
+            for campo in ("curso", "ciclo_lectivo"):
+                self.fields.pop(campo)
+
+    def clean(self):
+        cleaned = super().clean()
+        curso = cleaned.get("curso")
+        ciclo_lectivo = cleaned.get("ciclo_lectivo")
+        if bool(curso) != bool(ciclo_lectivo):
+            raise forms.ValidationError(
+                "Para asignar un curso debe indicarse también el ciclo lectivo "
+                "(y viceversa)."
+            )
+        return cleaned
 
 
 class DocenteForm(forms.ModelForm):
@@ -169,6 +197,42 @@ class AsignacionDocenteForm(_BaseFormMixin, forms.ModelForm):
             rol=Usuario.Rol.DOCENTE, is_active=True
         )
         self.fields["curso"].queryset = Curso.objects.filter(activo=True)
+
+
+class AsignacionAlumnoCursoForm(_BaseFormMixin, forms.ModelForm):
+    """Formulario de alta/edición de una asignación alumno-curso."""
+
+    class Meta:
+        model = AsignacionAlumnoCurso
+        fields = [
+            "alumno",
+            "curso",
+            "ciclo_lectivo",
+            "fecha_inicio",
+            "fecha_fin",
+            "condicion",
+            "activa",
+        ]
+        widgets = {
+            "fecha_inicio": forms.DateInput(
+                format="%Y-%m-%d",
+                attrs={"type": "date"},
+            ),
+            "fecha_fin": forms.DateInput(
+                format="%Y-%m-%d",
+                attrs={"type": "date"},
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["alumno"].queryset = Alumno.objects.filter(
+            estado=Alumno.Estado.ACTIVO
+        ).order_by("apellido", "nombre")
+        self.fields["curso"].queryset = Curso.objects.filter(activo=True)
+        self.fields["ciclo_lectivo"].queryset = CicloLectivo.objects.filter(
+            activo=True
+        )
 
 
 class HorarioForm(_BaseFormMixin, forms.ModelForm):
