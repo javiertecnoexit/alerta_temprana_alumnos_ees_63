@@ -8,47 +8,45 @@
 - 9 apps: usuarios, ciclos_lectivos, estructura_escolar, alumnos,
   observaciones, asistencia, auditoria, seguimiento, administracion
 
-## Fase 2 de mejoras — progreso
+## Fase 2 de mejoras — COMPLETA ✅
 
-### Tarea A — Ocultar DNI al docente ✅ COMPLETA
+### Tarea A — Ocultar DNI al docente ✅
 - El docente ya no ve DNI en la lista de alumnos
 - El directivo y preceptor SÍ lo ven
 
-### Tarea B — Ampliar rol del preceptor ✅ COMPLETA
+### Tarea B — Ampliar rol del preceptor ✅
 - Campo `materia` opcional en `Observacion` (observaciones preceptoriales)
 - El preceptor puede: ver ficha de su turno, registrar observaciones
   (sin materia), registrar intervenciones — SIEMPRE limitado a su turno
 - Helper `_preceptor_puede_ver_alumno` y `_alumno_del_turno_preceptor`
 - Decorador `directivo_o_preceptor` en `apps/usuarios/decorators.py`
 
-### Tarea C — App administracion (EN PROGRESO)
-- **C1 ✅ COMPLETA**: app `administracion` creada, helper
-  `registrar_auditoria` (activa el AuditLog), panel índice,
-  decorador `directivo_o_admin`
-- **C2 ⏳ PENDIENTE**: CRUD de Alumno + Docente (alta/baja/edición +
-  asignación) con auditoría y confirmación
-- **C3 ⏳ PENDIENTE**: CRUD de Materia, Curso, Turno, CicloLectivo
-- **C4 ⏳ PENDIENTE**: CRUD de Horario y AsignacionDocente
+### Tarea C — App administracion ✅
+- C1: app creada + helper `registrar_auditoria` (activa AuditLog) +
+  panel índice + decorador `directivo_o_admin`
+- C2: CRUD de Alumno + Docente con confirmación y auditoría
+- C3: CRUD de Materia, Turno, Curso, CicloLectivo
+- C4: CRUD de AsignacionDocente y Horario (eliminación auditada)
+- Patrón de 2 pasos: formulario → sesión → confirmación → guardar
+- Auditoría (crear/modificar/eliminar) en cada acción
 
-### Tarea D — Reportes por profesor ⏳ PENDIENTE
+### Tarea D — Reportes por profesor ✅
 - Panel de participación (obs por docente en período)
 - Filtro de alumnos por docente
 - Filtro de docentes por curso
-- Estilo de reporte por docente (distribución positivo/neutro/atención)
+- Estilo de reporte por docente (distribución positivo/neutro/atención
+  y por familia)
 - Ficha de alumno filtrada por docente+curso
+- Preceptor restringido a su turno en todos los reportes
 
 ## Decisiones acordadas
 - Preceptor: NO carga datos maestros (solo consulta); sí reportes igual
   que directivo (limitado a su turno)
 - Carga de datos maestros: directivo + admin (interfaces propias con
   aviso de confirmación y auditoría de cada intervención)
-- C2/C3/C4 usan el helper `registrar_auditoria` de administracion
 
-## Próximos pasos
-1. Terminar C2 (CRUD Alumno + Docente)
-2. C3 (Materia, Curso, Turno, CicloLectivo)
-3. C4 (Horario y AsignacionDocente)
-4. D (reportes por profesor)
+## Estado: Fase 2 de mejoras COMPLETA
+Todas las tareas (A, B, C1-C4, D) terminadas, verificadas y commiteadas.
 
 ## Credenciales demo
 - admin / Admin1327! (superusuario)
