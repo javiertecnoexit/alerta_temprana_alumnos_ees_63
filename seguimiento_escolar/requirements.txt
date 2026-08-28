@@ -3,3 +3,4 @@ psycopg2-binary>=2.9
 python-decouple>=3.8
 django-cors-headers>=4.0
 whitenoise>=6.0
+gunicorn>=21.2
