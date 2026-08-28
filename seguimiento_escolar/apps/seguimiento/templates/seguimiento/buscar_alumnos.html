@@ -25,6 +25,12 @@
         <option value="{{ ciclo.id }}" {% if ciclo_id == ciclo.id|stringformat:"s" %}selected{% endif %}>{{ ciclo }}</option>
         {% endfor %}
     </select>
+    <select name="docente" style="padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;">
+        <option value="">Todos los docentes</option>
+        {% for docente in docentes %}
+        <option value="{{ docente.id }}" {% if docente_id == docente.id|stringformat:"s" %}selected{% endif %}>{{ docente }}</option>
+        {% endfor %}
+    </select>
     <button type="submit" style="padding:0.5rem;background:#2b6cb0;color:#fff;border:none;border-radius:4px;cursor:pointer;">Buscar</button>
 </form>
 

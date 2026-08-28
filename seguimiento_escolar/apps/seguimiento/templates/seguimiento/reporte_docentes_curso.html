@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Docentes por curso — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:0.25rem;">Docentes por curso</h2>
+<p style="color:#718096;margin-bottom:1rem;">Docentes (asignaciones activas) que dan clase en un curso.</p>
+
+<form method="get" style="margin-bottom:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+    <select name="curso" style="padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;">
+        <option value="">Elegir curso</option>
+        {% for c in cursos %}
+        <option value="{{ c.id }}" {% if curso_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" style="padding:0.5rem;background:#2b6cb0;color:#fff;border:none;border-radius:4px;cursor:pointer;">Consultar</button>
+</form>
+
+{% if curso %}
+<h3 style="margin:1rem 0 0.5rem;">{{ curso }}</h3>
+{% if asignaciones %}
+<table style="width:100%;border-collapse:collapse;">
+    <thead>
+        <tr style="background:#edf2f7;text-align:left;">
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Docente</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Materia</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Tipo</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for asignacion in asignaciones %}
+        <tr>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.docente }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.materia }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ asignacion.get_tipo_display }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div style="margin-top:1rem;padding:1rem;background:#ebf4ff;border-left:4px solid #3182ce;border-radius:4px;">
+    No hay docentes asignados a este curso.
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

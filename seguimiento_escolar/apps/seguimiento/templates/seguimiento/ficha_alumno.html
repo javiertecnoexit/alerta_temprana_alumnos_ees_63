@@ -45,6 +45,18 @@
         <option value="neutro" {% if caracter == "neutro" %}selected{% endif %}>Neutro</option>
         <option value="atencion" {% if caracter == "atencion" %}selected{% endif %}>Atención</option>
     </select>
+    <select name="docente">
+        <option value="">Todos los docentes</option>
+        {% for docente in docentes %}
+        <option value="{{ docente.id }}" {% if docente_id == docente.id|stringformat:"s" %}selected{% endif %}>{{ docente }}</option>
+        {% endfor %}
+    </select>
+    <select name="curso">
+        <option value="">Todos los cursos</option>
+        {% for curso in cursos %}
+        <option value="{{ curso.id }}" {% if curso_id == curso.id|stringformat:"s" %}selected{% endif %}>{{ curso }}</option>
+        {% endfor %}
+    </select>
     <button type="submit" style="padding:0.5rem;background:#2b6cb0;color:#fff;border:none;border-radius:4px;cursor:pointer;">Filtrar</button>
 </form>
 

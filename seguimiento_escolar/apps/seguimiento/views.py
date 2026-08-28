@@ -8,9 +8,15 @@ from django.views.decorators.http import require_http_methods
 
 from apps.alumnos.models import Alumno, AsignacionAlumnoCurso
 from apps.ciclos_lectivos.models import CicloLectivo
-from apps.estructura_escolar.models import Curso, Materia, Turno
+from apps.estructura_escolar.models import (
+    AsignacionDocente,
+    Curso,
+    Materia,
+    Turno,
+)
 from apps.observaciones.forms import ObservacionForm
 from apps.observaciones.models import CatalogoObservacion, Observacion
+from apps.usuarios.models import Usuario
 from apps.usuarios.decorators import (
     directivo_o_preceptor,
     directivo_requerido,
@@ -37,6 +43,7 @@ def buscar_alumnos(request):
     curso_id = request.GET.get("curso", "")
     turno_id = request.GET.get("turno", "")
     ciclo_id = request.GET.get("ciclo", "")
+    docente_id = request.GET.get("docente", "")
 
     alumnos = Alumno.objects.all().order_by("apellido", "nombre")
 
@@ -60,6 +67,10 @@ def buscar_alumnos(request):
             pk__in=asignaciones_ids.values_list("alumno_id", flat=True)
         ).distinct()
 
+    # Filtro por docente: alumnos con observaciones registradas por ese docente
+    if docente_id:
+        alumnos = alumnos.filter(observaciones__docente_id=docente_id).distinct()
+
     return render(
         request,
         "seguimiento/buscar_alumnos.html",
@@ -69,9 +80,12 @@ def buscar_alumnos(request):
             "cursos": Curso.objects.select_related("turno", "ciclo_lectivo").all(),
             "turnos": Turno.objects.all(),
             "ciclos": CicloLectivo.objects.all(),
+            "docentes": Usuario.objects.filter(rol=Usuario.Rol.DOCENTE)
+            .order_by("last_name", "first_name"),
             "curso_id": curso_id,
             "turno_id": turno_id,
             "ciclo_id": ciclo_id,
+            "docente_id": docente_id,
         },
     )
 
@@ -110,6 +124,8 @@ def ficha_alumno(request, alumno_id):
     ciclo_id = request.GET.get("ciclo", "")
     materia_id = request.GET.get("materia", "")
     caracter = request.GET.get("caracter", "")
+    docente_id = request.GET.get("docente", "")
+    curso_id = request.GET.get("curso", "")
 
     observaciones = Observacion.objects.filter(
         alumno=alumno, anulada=False
@@ -121,10 +137,14 @@ def ficha_alumno(request, alumno_id):
         observaciones = observaciones.filter(materia_id=materia_id)
     if caracter:
         observaciones = observaciones.filter(catalogo__caracter=caracter)
+    if docente_id:
+        observaciones = observaciones.filter(docente_id=docente_id)
+    if curso_id:
+        observaciones = observaciones.filter(curso_id=curso_id)
 
-    # Conteo por caracter (datos observados, agrupados)
+    # Conteo por caracter (datos observados, agrupados) — refleja los filtros
     conteo = (
-        Observacion.objects.filter(alumno=alumno, anulada=False)
+        observaciones
         .values("catalogo__caracter")
         .annotate(total=Count("id"))
         .order_by("catalogo__caracter")
@@ -152,6 +172,11 @@ def ficha_alumno(request, alumno_id):
             "ciclo_id": ciclo_id,
             "materia_id": materia_id,
             "caracter": caracter,
+            "docente_id": docente_id,
+            "curso_id": curso_id,
+            "docentes": Usuario.objects.filter(rol=Usuario.Rol.DOCENTE)
+            .order_by("last_name", "first_name"),
+            "cursos": Curso.objects.select_related("turno", "ciclo_lectivo").all(),
             "intervenciones": Intervencion.objects.filter(alumno=alumno)
             .select_related("responsable")
             .order_by("-fecha"),
@@ -372,4 +397,186 @@ def registrar_intervencion_preceptor(request, alumno_id):
         request,
         "seguimiento/registrar_intervencion.html",
         {"form": form, "alumno": alumno},
+    )
+
+
+@directivo_o_preceptor
+def reporte_participacion(request):
+    """
+    Reporte de participación docente: cantidad de observaciones
+    registradas por cada docente en un período (solo vigentes).
+    """
+    fecha_desde = request.GET.get("fecha_desde", "")
+    fecha_hasta = request.GET.get("fecha_hasta", "")
+    turno_id = request.GET.get("turno", "")
+
+    observaciones = Observacion.objects.filter(anulada=False)
+
+    # Preceptor: restringir a su turno
+    if request.user.es_preceptor:
+        turno = turno_del_preceptor(request.user)
+        if turno is None:
+            observaciones = Observacion.objects.none()
+        else:
+            observaciones = observaciones.filter(turno=turno.nombre)
+        turno_id = ""
+    elif turno_id:
+        turno = get_object_or_404(Turno, pk=turno_id)
+        observaciones = observaciones.filter(turno=turno.nombre)
+
+    if fecha_desde:
+        observaciones = observaciones.filter(
+            fecha_hora__date__gte=fecha_desde
+        )
+    if fecha_hasta:
+        observaciones = observaciones.filter(
+            fecha_hora__date__lte=fecha_hasta
+        )
+
+    datos_reporte = (
+        observaciones.values(
+            "docente_id",
+            "docente__username",
+            "docente__last_name",
+            "docente__first_name",
+        )
+        .annotate(total=Count("id"))
+        .order_by("-total", "docente__last_name", "docente__username")
+    )
+
+    return render(
+        request,
+        "seguimiento/reporte_participacion.html",
+        {
+            "datos_reporte": datos_reporte,
+            "fecha_desde": fecha_desde,
+            "fecha_hasta": fecha_hasta,
+            "turnos": Turno.objects.all(),
+            "turno_id": turno_id,
+            "es_preceptor": request.user.es_preceptor,
+        },
+    )
+
+
+@directivo_o_preceptor
+def reporte_docentes_curso(request):
+    """
+    Muestra los docentes (AsignacionDocente) que dan clase en un curso,
+    con materia y tipo. El preceptor solo ve cursos de su turno.
+    """
+    curso_id = request.GET.get("curso", "")
+
+    cursos = Curso.objects.select_related("turno", "ciclo_lectivo").all()
+    if request.user.es_preceptor:
+        turno = turno_del_preceptor(request.user)
+        if turno is None:
+            cursos = Curso.objects.none()
+        else:
+            cursos = cursos.filter(turno=turno)
+
+    asignaciones = AsignacionDocente.objects.none()
+    curso = None
+    if curso_id:
+        if request.user.es_preceptor:
+            turno = turno_del_preceptor(request.user)
+            curso = get_object_or_404(
+                Curso.objects.filter(turno=turno), pk=curso_id
+            )
+        else:
+            curso = get_object_or_404(Curso, pk=curso_id)
+        asignaciones = AsignacionDocente.objects.filter(
+            curso=curso, activa=True
+        ).select_related("docente", "materia")
+
+    return render(
+        request,
+        "seguimiento/reporte_docentes_curso.html",
+        {
+            "cursos": cursos,
+            "curso": curso,
+            "curso_id": curso_id,
+            "asignaciones": asignaciones,
+        },
+    )
+
+
+@directivo_o_preceptor
+def reporte_estilo_docente(request, docente_id):
+    """
+    Estilo de reporte de un docente: distribución de sus observaciones
+    vigentes por carácter y por familia.
+    """
+    docente = get_object_or_404(Usuario, pk=docente_id, rol=Usuario.Rol.DOCENTE)
+
+    # Si es preceptor, verificar que el docente tiene observaciones en su turno
+    if request.user.es_preceptor:
+        turno = turno_del_preceptor(request.user)
+        if turno is None:
+            raise PermissionDenied
+        tiene_obs = Observacion.objects.filter(
+            docente=docente, anulada=False, turno=turno.nombre
+        ).exists()
+        if not tiene_obs:
+            raise PermissionDenied
+
+    fecha_desde = request.GET.get("fecha_desde", "")
+    fecha_hasta = request.GET.get("fecha_hasta", "")
+
+    observaciones = Observacion.objects.filter(
+        docente=docente, anulada=False
+    )
+    if request.user.es_preceptor:
+        turno = turno_del_preceptor(request.user)
+        observaciones = observaciones.filter(turno=turno.nombre)
+    if fecha_desde:
+        observaciones = observaciones.filter(fecha_hora__date__gte=fecha_desde)
+    if fecha_hasta:
+        observaciones = observaciones.filter(fecha_hora__date__lte=fecha_hasta)
+
+    # Distribución por carácter
+    por_caracter = (
+        observaciones.values("catalogo__caracter")
+        .annotate(total=Count("id"))
+        .order_by("catalogo__caracter")
+    )
+    distribucion_caracter = {
+        item["catalogo__caracter"]: item["total"] for item in por_caracter
+    }
+
+    # Distribución por familia
+    por_familia = (
+        observaciones.values("catalogo__familia")
+        .annotate(total=Count("id"))
+        .order_by("-total", "catalogo__familia")
+    )
+    distribucion_familia = {
+        item["catalogo__familia"]: item["total"] for item in por_familia
+    }
+
+    # Materias y cursos donde reportó
+    materias = (
+        Materia.objects.filter(observaciones__docente=docente,
+                               observaciones__anulada=False)
+        .distinct().order_by("nombre")
+    )
+    cursos = (
+        Curso.objects.filter(observaciones__docente=docente,
+                             observaciones__anulada=False)
+        .select_related("turno", "ciclo_lectivo")
+        .distinct().order_by("ciclo_lectivo__anio", "anio", "division")
+    )
+
+    return render(
+        request,
+        "seguimiento/reporte_estilo_docente.html",
+        {
+            "docente": docente,
+            "total_observaciones": observaciones.count(),
+            "distribucion_caracter": distribucion_caracter,
+            "distribucion_familia": distribucion_familia,
+            "materias": materias,
+            "cursos": cursos,
+            "fecha_desde": fecha_desde,
+            "fecha_hasta": fecha_hasta,
+        },
     )

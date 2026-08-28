@@ -49,4 +49,20 @@ urlpatterns = [
         views.registrar_intervencion,
         name="registrar_intervencion",
     ),
+    # Reportes
+    path(
+        "reportes/participacion/",
+        views.reporte_participacion,
+        name="reporte_participacion",
+    ),
+    path(
+        "reportes/docentes-por-curso/",
+        views.reporte_docentes_curso,
+        name="reporte_docentes_curso",
+    ),
+    path(
+        "reportes/estilo-docente/<int:docente_id>/",
+        views.reporte_estilo_docente,
+        name="reporte_estilo_docente",
+    ),
 ]

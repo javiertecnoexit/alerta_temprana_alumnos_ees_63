@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Reporte de participación — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:0.25rem;">Reporte de participación docente</h2>
+<p style="color:#718096;margin-bottom:1rem;">Cantidad de observaciones vigentes registradas por cada docente.</p>
+
+<form method="get" style="margin-bottom:1rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.5rem;">
+    <input type="date" name="fecha_desde" value="{{ fecha_desde }}" style="padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;">
+    <input type="date" name="fecha_hasta" value="{{ fecha_hasta }}" style="padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;">
+    {% if not es_preceptor %}
+    <select name="turno" style="padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;">
+        <option value="">Todos los turnos</option>
+        {% for turno in turnos %}
+        <option value="{{ turno.id }}" {% if turno_id == turno.id|stringformat:"s" %}selected{% endif %}>{{ turno }}</option>
+        {% endfor %}
+    </select>
+    {% endif %}
+    <button type="submit" style="padding:0.5rem;background:#2b6cb0;color:#fff;border:none;border-radius:4px;cursor:pointer;">Filtrar</button>
+</form>
+
+{% if datos_reporte %}
+<table style="width:100%;border-collapse:collapse;">
+    <thead>
+        <tr style="background:#edf2f7;text-align:left;">
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Docente</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Observaciones</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in datos_reporte %}
+        <tr>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">
+                {% if item.docente__last_name or item.docente__first_name %}
+                    {{ item.docente__last_name|default:"—" }}, {{ item.docente__first_name|default:"—" }}
+                {% else %}
+                    {{ item.docente__username }}
+                {% endif %}
+            </td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ item.total }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">
+                <a href="{% url 'seguimiento:reporte_estilo_docente' item.docente_id %}" style="background:#2b6cb0;color:#fff;padding:0.3rem 0.75rem;border-radius:4px;text-decoration:none;font-size:0.875rem;">Ver estilo</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div style="margin-top:1rem;padding:1rem;background:#ebf4ff;border-left:4px solid #3182ce;border-radius:4px;">
+    No hay observaciones con los criterios indicados.
+</div>
+{% endif %}
+{% endblock %}

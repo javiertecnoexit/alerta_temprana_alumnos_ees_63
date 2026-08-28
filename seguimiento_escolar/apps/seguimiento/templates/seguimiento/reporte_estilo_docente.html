@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}Estilo de reporte: {{ docente }} — Sistema de Seguimiento Escolar{% endblock %}
+
+{% block content %}
+<h2 style="margin-bottom:0.25rem;">Estilo de reporte: {{ docente }}</h2>
+<p style="color:#718096;margin-bottom:1rem;">Distribución de las observaciones vigentes registradas por este docente.</p>
+
+<form method="get" style="margin-bottom:1rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+    <input type="date" name="fecha_desde" value="{{ fecha_desde }}" style="padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;">
+    <input type="date" name="fecha_hasta" value="{{ fecha_hasta }}" style="padding:0.5rem;border:1px solid #cbd5e0;border-radius:4px;">
+    <button type="submit" style="padding:0.5rem;background:#2b6cb0;color:#fff;border:none;border-radius:4px;cursor:pointer;">Filtrar</button>
+</form>
+
+<div style="margin-bottom:1.5rem;">
+    <strong>Total de observaciones vigentes:</strong> {{ total_observaciones }}
+</div>
+
+<h3 style="margin-bottom:0.5rem;">Distribución por carácter</h3>
+<table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;">
+    <thead>
+        <tr style="background:#edf2f7;text-align:left;">
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Carácter</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Cantidad</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for caracter, cantidad in distribucion_caracter.items %}
+        <tr>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ caracter }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ cantidad }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2" style="padding:0.5rem;border:1px solid #e2e8f0;">Sin datos</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3 style="margin-bottom:0.5rem;">Distribución por familia</h3>
+<table style="width:100%;border-collapse:collapse;margin-bottom:1.5rem;">
+    <thead>
+        <tr style="background:#edf2f7;text-align:left;">
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Familia</th>
+            <th style="padding:0.5rem;border:1px solid #e2e8f0;">Cantidad</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for familia, cantidad in distribucion_familia.items %}
+        <tr>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ familia }}</td>
+            <td style="padding:0.5rem;border:1px solid #e2e8f0;">{{ cantidad }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="2" style="padding:0.5rem;border:1px solid #e2e8f0;">Sin datos</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if materias or cursos %}
+<h3 style="margin-bottom:0.5rem;">Materias y cursos donde reportó</h3>
+<p style="margin-bottom:0.5rem;">
+    {% if materias %}<strong>Materias:</strong> {% for m in materias %}{{ m }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}
+</p>
+<p style="margin-bottom:1rem;">
+    {% if cursos %}<strong>Cursos:</strong> {% for c in cursos %}{{ c }}{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}
+</p>
+{% endif %}
+
+<p>
+    <a href="{% url 'seguimiento:reporte_participacion' %}" style="color:#2d3748;">← Volver al reporte de participación</a>
+</p>
+{% endblock %}
